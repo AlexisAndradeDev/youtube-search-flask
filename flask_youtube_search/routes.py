@@ -1,4 +1,4 @@
-from flask.helpers import total_seconds
+from flask.helpers import total_seconds, url_for
 import requests
 from isodate import parse_duration
 
@@ -13,10 +13,13 @@ def index():
 
     videos = []
 
-    if request.method == "POST":
+    if request.method == "POST" and request.form.get("query"):
+        search_query = request.form.get("query")
+        if not search_query:
+            return 
         search_parameters = {
             "key": current_app.config["YOUTUBE_API_KEY"],
-            "q": request.form.get("query"), # search query
+            "q": search_query, # search query
             "part": "snippet",
             "maxResults": 12,
             "type": "video",
@@ -34,7 +37,7 @@ def index():
         videos_parameters = {
             "key": current_app.config["YOUTUBE_API_KEY"],
             "id": ",".join(video_ids),
-            "part": "snippet, contentDetails",
+            "part": "snippet, contentDetails, statistics",
             "maxResults": 12,
         }
 
@@ -53,8 +56,23 @@ def index():
                     "thumbnail": result["snippet"]["thumbnails"]["high"]["url"],
                     "duration": int(parse_duration(result["contentDetails"]["duration"]).total_seconds() / 60),
                     "title": result["snippet"]["title"],
+                    "likes": result["statistics"]["likeCount"],
+                    "dislikes": result["statistics"]["dislikeCount"],
                 }
+                video_data["route"] = f"{url_for('main.video_page', video_data=video_data)}"
                 videos.append(video_data)
 
-
     return render_template("index.html", videos=videos)
+
+@main.route("/video", methods=["GET", "POST"])
+def video_page():
+    video_data = eval(request.args.get("video_data", None))
+
+    if not video_data:
+        return "<h2>Error while loading video data.</h2>"
+
+    video_response = requests.get(f"https://www.youtube.com/embed/{video_data['id']}")
+    if video_response.status_code != 200: # 200 means ok
+        return "<h2>Video can't be loaded.</h2>"
+
+    return render_template("video.html", video_data=video_data)
