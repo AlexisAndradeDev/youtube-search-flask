@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+    <title>{{ video_data.title }} - YouTube Search</title>
+
+    <style>
+        .row{
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <body>
+        <div class="row flex-fill">
+            <div class="col-md-12" style="padding: 0px;">
+                <iframe style="width: 100%;"
+                    src="https://www.youtube.com/embed/{{ video_data.id }}"
+                    frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;
+                    picture-in-picture" allowfullscreen height=600>
+                </iframe>
+            </div>
+        </div>
+        <div class="row flex-fill" style="background-color: rgb(0, 140, 0)">
+            <div class="col-md-12" style="margin: 0px; padding: 0.8rem 1rem 0.8rem 1rem;">
+                <h2 style="font-weight: bold; margin-top: 1rem; font-family: Arial; font-size: 1.2rem; color: #f2f2f2;">{{ video_data.title }}</h2>
+            </div>
+        </div>
+        <div class="row flex-fill" style="padding: 1rem 0 0 1rem;">
+            <div class="col-md-4" style="padding: 0 1rem 0 0rem;">
+                <p style="font-family: Arial; font-size: 1.0rem; color: #212121;">Likes: <b style="color: rgb(0, 160, 0);">{{ video_data.likes }}</b></p>
+            </div>
+            <div class="col-md-4" style="padding: 0 1rem 0 0rem;">
+                <p style="font-family: Arial; font-size: 1.0rem; color: #212121;">Dislikes: <b style="color: rgb(160, 0, 0);">{{ video_data.dislikes }}</b></p>
+            </div>
+        </div>
+    </body>
+{% endblock %}
